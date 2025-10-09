@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Estilos para imágenes flotantes en contenido de noticias */
+.news-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.news-content .float-left {
+  float: left;
+  margin: 0 16px 16px 0;
+  clear: left;
+}
+
+.news-content .float-right {
+  float: right;
+  margin: 0 0 16px 16px;
+  clear: right;
+}
+
+.news-content .clear-both {
+  clear: both;
+}
+
+/* Clearfix para contenedores con elementos flotantes */
+.news-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive: en móviles, las imágenes no flotan */
+@media (max-width: 640px) {
+  .news-content .float-left,
+  .news-content .float-right {
+    float: none;
+    display: block;
+    margin: 16px auto;
+    max-width: 100%;
+  }
+}
+
+/* Estilos para el visor de documentos */
+.document-viewer-overlay {
+  backdrop-filter: blur(4px);
+}
+
+.document-viewer-iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* Estilos para teclas del teclado */
+kbd {
+  display: inline-block;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+  font-family: ui-monospace, monospace;
+  background-color: #374151;
+  color: #f9fafb;
+  border-radius: 0.25rem;
+  border: 1px solid #6b7280;
+}
