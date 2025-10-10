@@ -8,6 +8,7 @@ import { NewsFeed } from './components/news/NewsFeed'
 import { DocumentViewer } from './components/common/DocumentViewer'
 import { CircularsPage } from './components/circulars/CircularsPage'
 import { BulletinPage } from './components/bulletin/BulletinPage'
+import { CalendarPage } from './components/calendar/CalendarPage'
 import { useDocumentViewer } from './context/DocumentViewerContext'
 import { fetchCourses } from './lib/courses'
 import type { Course } from './types'
@@ -44,6 +45,8 @@ export default function App(): JSX.Element {
     switch (currentPage) {
       case 'circulars':
         return <CircularsPage />
+      case 'calendar':
+        return <CalendarPage />
       case 'news':
       default:
         return (

@@ -3,14 +3,14 @@ import { useAuth } from '../../context/AuthContext'
 import type { Course } from '../../types'
 import { fetchCourses } from '../../lib/courses'
 import { NewsManager } from './NewsManager'
-import { CircularManager } from './CircularManager'
-import { GalleryManager } from './GalleryManager'
+// import { CircularManager } from './CircularManager' // Temporalmente oculto
+// import { GalleryManager } from './GalleryManager' // Temporalmente oculto
 import { UserManager } from './UserManager'
 
 const TABS = [
   { id: 'news', label: 'Noticias' },
-  { id: 'circulars', label: 'Circulares' },
-  { id: 'gallery', label: 'Galería' },
+  // { id: 'circulars', label: 'Circulares' }, // Temporalmente oculto
+  // { id: 'gallery', label: 'Galería' }, // Temporalmente oculto
   { id: 'users', label: 'Usuarios' },
 ] as const
 
@@ -114,6 +114,7 @@ export function ManagementDashboard(): JSX.Element {
               profileId={profile?.id}
             />
           )}
+          {/* Temporalmente ocultos
           {activeTab === 'circulars' && (
             <CircularManager
               courses={courses}
@@ -128,6 +129,7 @@ export function ManagementDashboard(): JSX.Element {
               profileId={profile?.id}
             />
           )}
+          */}
           {activeTab === 'users' && (
             <UserManager
               profileId={profile?.id}

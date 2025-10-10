@@ -62,3 +62,16 @@ export type Profile = {
   course_ids?: string[] | null
   created_at?: string
 }
+
+export type CalendarEvent = {
+  id: string
+  title: string
+  start: Date
+  end: Date
+  type: 'academico' | 'festivo' | 'reunion' | 'evaluacion' | 'otro'
+  description?: string | null
+  course_ids?: string[] | null
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
