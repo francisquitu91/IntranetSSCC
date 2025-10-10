@@ -1,8 +1,10 @@
-import { Download, Search, Instagram } from 'lucide-react'
-import { useState, type JSX } from 'react'
+import { Download, Search, Instagram, Calendar, FileText } from 'lucide-react'
+import { useState, useEffect, type JSX } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { fetchCirculars } from '../../lib/circulars'
+import type { Circular as DatabaseCircular } from '../../types'
 
-type Circular = {
+type StaticCircular = {
   id: string
   title: string
   driveUrl: string
@@ -10,7 +12,7 @@ type Circular = {
 }
 
 // Datos de las circulares para 2025
-const CIRCULARS_2025: Circular[] = [
+const CIRCULARS_2025: StaticCircular[] = [
   {
     id: '1',
     title: 'Circular N° 153 – Encuentro con Cristo KB',
@@ -46,16 +48,44 @@ const getDownloadUrl = (driveUrl: string): string => {
 export function CircularsPage(): JSX.Element {
   const { profile } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
+  const [databaseCirculars, setDatabaseCirculars] = useState<DatabaseCircular[]>([])
+  const [loadingDatabase, setLoadingDatabase] = useState(true)
 
-  const handleDownload = (circular: Circular) => {
+  // Cargar circulares de la base de datos
+  useEffect(() => {
+    const loadDatabaseCirculars = async () => {
+      try {
+        const data = await fetchCirculars()
+        setDatabaseCirculars(data)
+      } catch (error) {
+        console.error('Error loading circulars:', error)
+        setDatabaseCirculars([])
+      } finally {
+        setLoadingDatabase(false)
+      }
+    }
+
+    loadDatabaseCirculars()
+  }, [])
+
+  const handleDownload = (circular: StaticCircular) => {
     const downloadUrl = getDownloadUrl(circular.driveUrl)
     window.open(downloadUrl, '_blank')
   }
 
+  const handleDatabaseDownload = (circular: DatabaseCircular) => {
+    window.open(circular.file_url, '_blank')
+  }
+
   // Filtrar circulares según búsqueda
-  const filteredCirculars = CIRCULARS_2025.filter(circular => 
+  const filteredStaticCirculars = CIRCULARS_2025.filter(circular => 
     circular.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     circular.year.toString().includes(searchTerm)
+  )
+
+  const filteredDatabaseCirculars = databaseCirculars.filter(circular =>
+    circular.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (circular.description && circular.description.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   return (
@@ -106,50 +136,134 @@ export function CircularsPage(): JSX.Element {
         </h2>
       </div>
 
-      {/* Lista de circulares individuales */}
-      <div className="max-w-4xl mx-auto px-6 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCirculars.map((circular) => (
-            <div
-              key={circular.id}
-              className="bg-white rounded-[20px] p-6 text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-              style={{
-                boxShadow: '0px 2px 12px rgba(0,0,0,0.08)'
-              }}
-            >
-              {/* Título de la circular */}
-              <h3 
-                className="text-lg font-bold mb-4 leading-tight"
-                style={{ color: '#012A5A' }}
-              >
-                {circular.title}
-              </h3>
+      {/* Circulares subidas por administradores */}
+      {(loadingDatabase || filteredDatabaseCirculars.length > 0) && (
+        <div className="max-w-4xl mx-auto px-6 mb-8">
+          <div className="flex items-center gap-2 mb-6">
+            <FileText className="w-5 h-5" style={{ color: '#012A5A' }} />
+            <h3 className="text-xl font-semibold" style={{ color: '#012A5A' }}>
+              Circulares Institucionales
+            </h3>
+          </div>
+          
+          {loadingDatabase ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-2 text-gray-500">Cargando circulares...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {filteredDatabaseCirculars.map((circular) => (
+                <div
+                  key={`db-${circular.id}`}
+                  className="bg-white rounded-[20px] p-6 text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  style={{
+                    boxShadow: '0px 2px 12px rgba(0,0,0,0.08)'
+                  }}
+                >
+                  {/* Título de la circular */}
+                  <h3 
+                    className="text-lg font-bold mb-2 leading-tight"
+                    style={{ color: '#012A5A' }}
+                  >
+                    {circular.title}
+                  </h3>
 
-              {/* Botón de descarga */}
-              <button
-                onClick={() => handleDownload(circular)}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md hover:brightness-110"
+                  {/* Descripción si existe */}
+                  {circular.description && (
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      {circular.description}
+                    </p>
+                  )}
+
+                  {/* Fecha de publicación */}
+                  {circular.published_at && (
+                    <div className="flex items-center justify-center gap-1 mb-3 text-xs text-gray-500">
+                      <Calendar className="w-3 h-3" />
+                      <span>
+                        {new Date(circular.published_at).toLocaleDateString('es-ES', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Botón de descarga */}
+                  <button
+                    onClick={() => handleDatabaseDownload(circular)}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md hover:brightness-110"
+                    style={{
+                      backgroundColor: '#D9F0FF',
+                      color: '#012A5A'
+                    }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Descargar
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Circulares estáticas del archivo */}
+      {filteredStaticCirculars.length > 0 && (
+        <div className="max-w-4xl mx-auto px-6 pb-12">
+          <div className="flex items-center gap-2 mb-6">
+            <Calendar className="w-5 h-5" style={{ color: '#012A5A' }} />
+            <h3 className="text-xl font-semibold" style={{ color: '#012A5A' }}>
+              Archivo {CURRENT_YEAR}
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredStaticCirculars.map((circular) => (
+              <div
+                key={`static-${circular.id}`}
+                className="bg-white rounded-[20px] p-6 text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 style={{
-                  backgroundColor: '#D9F0FF',
-                  color: '#012A5A'
+                  boxShadow: '0px 2px 12px rgba(0,0,0,0.08)'
                 }}
               >
-                <Download className="w-4 h-4" />
-                Descargar
-              </button>
-            </div>
-          ))}
-        </div>
+                {/* Título de la circular */}
+                <h3 
+                  className="text-lg font-bold mb-4 leading-tight"
+                  style={{ color: '#012A5A' }}
+                >
+                  {circular.title}
+                </h3>
 
-        {/* Mensaje si no hay resultados */}
-        {filteredCirculars.length === 0 && (
+                {/* Botón de descarga */}
+                <button
+                  onClick={() => handleDownload(circular)}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md hover:brightness-110"
+                  style={{
+                    backgroundColor: '#D9F0FF',
+                    color: '#012A5A'
+                  }}
+                >
+                  <Download className="w-4 h-4" />
+                  Descargar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mensaje si no hay resultados */}
+      {!loadingDatabase && filteredStaticCirculars.length === 0 && filteredDatabaseCirculars.length === 0 && (
+        <div className="max-w-4xl mx-auto px-6 pb-12">
           <div className="text-center py-12">
             <p className="text-gray-500">
               No se encontraron circulares que coincidan con tu búsqueda.
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

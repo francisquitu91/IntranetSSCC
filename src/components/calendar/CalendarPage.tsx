@@ -21,18 +21,18 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
+// Colores para los tipos de eventos
+const eventTypeColors: Record<string, string> = {
+  academico: 'bg-blue-600',
+  evaluacion: 'bg-red-600',
+  actividad: 'bg-purple-600',
+  feriado: 'bg-green-600',
+}
+
 // Componente personalizado para mostrar eventos
 const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
-  const eventTypeColors: Record<string, string> = {
-    academico: 'bg-blue-600',
-    festivo: 'bg-green-600',
-    reunion: 'bg-purple-600',
-    evaluacion: 'bg-red-600',
-    otro: 'bg-gray-600',
-  }
-
   return (
-    <div className={`${eventTypeColors[event.type]} p-1 text-white rounded-md text-xs truncate`}>
+    <div className={`${eventTypeColors[event.event_type]} p-1 text-white rounded-md text-xs truncate`}>
       <strong className="block truncate">{event.title}</strong>
     </div>
   )
@@ -45,6 +45,8 @@ export function CalendarPage() {
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentEventData, setCurrentEventData] = useState<Partial<CalendarEvent>>({})
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [viewEventData, setViewEventData] = useState<CalendarEvent | null>(null)
 
   const isAdmin = profile?.role === 'admin'
 
@@ -75,17 +77,21 @@ export function CalendarPage() {
     setCurrentEventData({ 
       start, 
       end, 
-      type: 'academico',
-      created_by: profile?.id 
+      event_type: 'academico',
+      profile_id: profile?.id 
     })
     setIsModalOpen(true)
   }, [isAdmin, profile?.id])
 
-  // Manejar selección de evento (editar)
+  // Manejar selección de evento (editar para admin, ver para estudiantes)
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
-    if (!isAdmin) return
-    setCurrentEventData(event)
-    setIsModalOpen(true)
+    if (isAdmin) {
+      setCurrentEventData(event)
+      setIsModalOpen(true)
+    } else {
+      setViewEventData(event)
+      setIsViewModalOpen(true)
+    }
   }, [isAdmin])
 
   // Manejar cambios en el formulario
@@ -102,7 +108,7 @@ export function CalendarPage() {
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value)
     setCurrentEventData(prev => ({
       ...prev,
-      course_ids: selectedOptions.length > 0 ? selectedOptions : null,
+      // course_ids: selectedOptions.length > 0 ? selectedOptions : null, // Comentado temporalmente
     }))
   }
 
@@ -155,6 +161,11 @@ export function CalendarPage() {
     setCurrentEventData({})
   }
 
+  const closeViewModal = () => {
+    setIsViewModalOpen(false)
+    setViewEventData(null)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
@@ -174,9 +185,32 @@ export function CalendarPage() {
         )}
         {!isAdmin && (
           <p className="text-sm text-gray-600 mt-2">
-            Vista de solo lectura - Solo administradores pueden modificar eventos
+            Haz clic en cualquier evento para ver más información
           </p>
         )}
+
+        {/* Leyenda de colores */}
+        <div className="mt-4 bg-white rounded-xl shadow-sm p-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Tipos de eventos:</h3>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-600 rounded"></div>
+              <span className="text-sm text-gray-700">Académico</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-600 rounded"></div>
+              <span className="text-sm text-gray-700">Evaluación</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-600 rounded"></div>
+              <span className="text-sm text-gray-700">Actividad</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-green-600 rounded"></div>
+              <span className="text-sm text-gray-700">Feriado</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="bg-white rounded-3xl shadow-lg p-6" style={{ height: 'calc(100vh - 250px)', minHeight: '600px' }}>
@@ -267,16 +301,15 @@ export function CalendarPage() {
                 Tipo de evento *
               </label>
               <select
-                name="type"
-                value={currentEventData.type || 'academico'}
+                name="event_type"
+                value={currentEventData.event_type || 'academico'}
                 onChange={handleFormChange}
                 className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="academico">Académico</option>
-                <option value="festivo">Festivo</option>
-                <option value="reunion">Reunión</option>
                 <option value="evaluacion">Evaluación</option>
-                <option value="otro">Otro</option>
+                <option value="actividad">Actividad</option>
+                <option value="feriado">Feriado</option>
               </select>
             </div>
 
@@ -287,7 +320,7 @@ export function CalendarPage() {
               <select
                 multiple
                 onChange={handleCourseChange}
-                value={currentEventData.course_ids || []}
+                value={[] /* currentEventData.course_ids || [] */}
                 className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 size={5}
               >
@@ -339,6 +372,68 @@ export function CalendarPage() {
                   Eliminar
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Vista para Estudiantes */}
+      {isViewModalOpen && viewEventData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-lg space-y-4">
+            <div className="flex justify-between items-start">
+              <h3 className="text-2xl font-bold text-gray-900">{viewEventData.title}</h3>
+              <button
+                onClick={closeViewModal}
+                className="text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className={`w-4 h-4 ${eventTypeColors[viewEventData.event_type]} rounded`}></div>
+                <span className="capitalize font-medium text-gray-700">
+                  {viewEventData.event_type === 'academico' ? 'Académico' :
+                   viewEventData.event_type === 'evaluacion' ? 'Evaluación' :
+                   viewEventData.event_type === 'actividad' ? 'Actividad' :
+                   viewEventData.event_type === 'feriado' ? 'Feriado' :
+                   viewEventData.event_type}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <span className="block text-sm font-medium text-gray-500">Fecha de inicio</span>
+                  <span className="text-gray-900">{format(viewEventData.start, "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}</span>
+                </div>
+                <div>
+                  <span className="block text-sm font-medium text-gray-500">Fecha de fin</span>
+                  <span className="text-gray-900">{format(viewEventData.end, "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}</span>
+                </div>
+                {viewEventData.description && (
+                  <div>
+                    <span className="block text-sm font-medium text-gray-500 mb-1">Descripción</span>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">{viewEventData.description}</p>
+                  </div>
+                )}
+                {viewEventData.related && (
+                  <div>
+                    <span className="block text-sm font-medium text-gray-500">Relacionado</span>
+                    <span className="text-gray-900">{viewEventData.related}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t">
+              <button
+                onClick={closeViewModal}
+                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 font-semibold transition-colors"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>

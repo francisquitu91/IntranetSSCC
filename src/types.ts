@@ -68,10 +68,10 @@ export type CalendarEvent = {
   title: string
   start: Date
   end: Date
-  type: 'academico' | 'festivo' | 'reunion' | 'evaluacion' | 'otro'
+  event_type: 'academico' | 'evaluacion' | 'actividad' | 'feriado'
   description?: string | null
-  course_ids?: string[] | null
-  created_by?: string | null
+  related?: string | null
+  profile_id?: string | null
   created_at?: string
   updated_at?: string
 }

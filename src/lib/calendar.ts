@@ -18,10 +18,10 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
     title: item.title,
     start: new Date(item.start_date),
     end: new Date(item.end_date),
-    type: item.event_type,
+    event_type: item.event_type,
     description: item.description,
-    course_ids: item.course_ids,
-    created_by: item.created_by,
+    related: item.related,
+    profile_id: item.profile_id,
     created_at: item.created_at,
     updated_at: item.updated_at,
   })) as CalendarEvent[]
@@ -38,10 +38,10 @@ export async function createCalendarEvent(
       title: event.title,
       start_date: event.start.toISOString(),
       end_date: event.end.toISOString(),
-      event_type: event.type,
+      event_type: event.event_type,
       description: event.description,
-      course_ids: event.course_ids,
-      created_by: event.created_by,
+      related: event.related,
+      profile_id: event.profile_id,
     })
     .select()
     .single()
@@ -55,10 +55,10 @@ export async function createCalendarEvent(
     title: data.title,
     start: new Date(data.start_date),
     end: new Date(data.end_date),
-    type: data.event_type,
+    event_type: data.event_type,
     description: data.description,
-    course_ids: data.course_ids,
-    created_by: data.created_by,
+    related: data.related,
+    profile_id: data.profile_id,
     created_at: data.created_at,
     updated_at: data.updated_at,
   } as CalendarEvent
@@ -75,9 +75,9 @@ export async function updateCalendarEvent(
   if (updates.title !== undefined) updateData.title = updates.title
   if (updates.start !== undefined) updateData.start_date = updates.start.toISOString()
   if (updates.end !== undefined) updateData.end_date = updates.end.toISOString()
-  if (updates.type !== undefined) updateData.event_type = updates.type
+  if (updates.event_type !== undefined) updateData.event_type = updates.event_type
   if (updates.description !== undefined) updateData.description = updates.description
-  if (updates.course_ids !== undefined) updateData.course_ids = updates.course_ids
+  if (updates.related !== undefined) updateData.related = updates.related
 
   const { data, error } = await supabase
     .from('calendar_events')
@@ -95,10 +95,10 @@ export async function updateCalendarEvent(
     title: data.title,
     start: new Date(data.start_date),
     end: new Date(data.end_date),
-    type: data.event_type,
+    event_type: data.event_type,
     description: data.description,
-    course_ids: data.course_ids,
-    created_by: data.created_by,
+    related: data.related,
+    profile_id: data.profile_id,
     created_at: data.created_at,
     updated_at: data.updated_at,
   } as CalendarEvent
