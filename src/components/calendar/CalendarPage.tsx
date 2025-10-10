@@ -201,7 +201,7 @@ export function CalendarPage() {
             time: 'Hora',
             event: 'Evento',
             noEventsInRange: 'No hay eventos en este rango',
-            showMore: (total) => `+ Ver más (${total})`,
+            showMore: (total: number) => `+ Ver más (${total})`,
           }}
           culture="es"
           components={{
