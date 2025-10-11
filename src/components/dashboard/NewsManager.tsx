@@ -183,10 +183,6 @@ export function NewsManager({ courses, loadingCourses, profileId }: Props): JSX.
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('¿Seguro que deseas eliminar esta noticia? Esta acción no se puede deshacer.')) {
-      return
-    }
-
     try {
       await deleteNews(id)
       setItems((prev) => prev.filter((item) => item.id !== id))

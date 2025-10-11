@@ -1,4 +1,4 @@
-import { Download, Search, Instagram, Calendar, FileText } from 'lucide-react'
+import { Search, Instagram, Calendar, FileText } from 'lucide-react'
 import { useState, useEffect, type JSX } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { fetchCirculars } from '../../lib/circulars'
@@ -36,15 +36,6 @@ const CIRCULARS_2025: StaticCircular[] = [
 // Solo mostrar circulares de 2025
 const CURRENT_YEAR = 2025
 
-// Función para convertir URL de Google Drive a enlace de descarga
-const getDownloadUrl = (driveUrl: string): string => {
-  const match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)
-  if (match && match[1]) {
-    return `https://drive.google.com/uc?export=download&id=${match[1]}`
-  }
-  return driveUrl
-}
-
 // Función para obtener URL de visualización de Google Drive
 const getViewUrl = (driveUrl: string): string => {
   const match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)
@@ -61,6 +52,7 @@ export function CircularsPage(): JSX.Element {
   const [loadingDatabase, setLoadingDatabase] = useState(true)
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [selectedCircular, setSelectedCircular] = useState<StaticCircular | null>(null)
+  const [selectedDatabaseCircular, setSelectedDatabaseCircular] = useState<DatabaseCircular | null>(null)
 
   // Cargar circulares de la base de datos
   useEffect(() => {
@@ -84,19 +76,20 @@ export function CircularsPage(): JSX.Element {
     setViewModalOpen(true)
   }
 
-  const handleActualDownload = (circular: StaticCircular) => {
-    const downloadUrl = getDownloadUrl(circular.driveUrl)
-    window.open(downloadUrl, '_blank')
-  }
+
 
   const closeViewModal = () => {
     setViewModalOpen(false)
     setSelectedCircular(null)
+    setSelectedDatabaseCircular(null)
   }
 
   const handleDatabaseDownload = (circular: DatabaseCircular) => {
-    window.open(circular.file_url, '_blank')
+    setSelectedDatabaseCircular(circular)
+    setViewModalOpen(true)
   }
+
+
 
   // Filtrar circulares según búsqueda
   const filteredStaticCirculars = CIRCULARS_2025.filter(circular => 
@@ -211,7 +204,7 @@ export function CircularsPage(): JSX.Element {
                     </div>
                   )}
 
-                  {/* Botón de descarga */}
+                  {/* Botón de visualización */}
                   <button
                     onClick={() => handleDatabaseDownload(circular)}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md hover:brightness-110"
@@ -220,8 +213,8 @@ export function CircularsPage(): JSX.Element {
                       color: '#012A5A'
                     }}
                   >
-                    <Download className="w-4 h-4" />
-                    Descargar
+                    <FileText className="w-4 h-4" />
+                    Ver Circular
                   </button>
                 </div>
               ))}
@@ -287,22 +280,15 @@ export function CircularsPage(): JSX.Element {
       )}
 
       {/* Modal de visualización de circular */}
-      {viewModalOpen && selectedCircular && (
+      {viewModalOpen && (selectedCircular || selectedDatabaseCircular) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
             {/* Header del modal */}
             <div className="flex justify-between items-center p-6 border-b">
               <h3 className="text-xl font-bold text-gray-900 pr-4">
-                {selectedCircular.title}
+                {selectedCircular ? selectedCircular.title : selectedDatabaseCircular?.title}
               </h3>
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleActualDownload(selectedCircular)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Descargar
-                </button>
                 <button
                   onClick={closeViewModal}
                   className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
@@ -315,9 +301,13 @@ export function CircularsPage(): JSX.Element {
             {/* Contenido del iframe */}
             <div className="flex-1 p-6">
               <iframe
-                src={getViewUrl(selectedCircular.driveUrl)}
+                src={
+                  selectedCircular 
+                    ? getViewUrl(selectedCircular.driveUrl)
+                    : selectedDatabaseCircular?.file_url
+                }
                 className="w-full h-full rounded-lg border"
-                title={selectedCircular.title}
+                title={selectedCircular ? selectedCircular.title : selectedDatabaseCircular?.title}
                 frameBorder="0"
                 allow="autoplay"
               />

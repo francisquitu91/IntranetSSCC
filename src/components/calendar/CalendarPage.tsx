@@ -143,16 +143,14 @@ export function CalendarPage() {
   const handleDelete = async () => {
     if (!currentEventData.id) return
     
-    if (window.confirm(`¿Estás seguro de que quieres eliminar "${currentEventData.title}"?`)) {
-      try {
-        await deleteCalendarEvent(currentEventData.id)
-        const updatedEvents = await fetchCalendarEvents()
-        setEvents(updatedEvents)
-        closeModal()
-      } catch (error) {
-        console.error('Error deleting calendar event:', error)
-        alert('Error al eliminar el evento. Por favor intenta de nuevo.')
-      }
+    try {
+      await deleteCalendarEvent(currentEventData.id)
+      const updatedEvents = await fetchCalendarEvents()
+      setEvents(updatedEvents)
+      closeModal()
+    } catch (error) {
+      console.error('Error deleting calendar event:', error)
+      alert('Error al eliminar el evento. Por favor intenta de nuevo.')
     }
   }
 

@@ -150,10 +150,6 @@ export function CircularManager({ courses, loadingCourses, profileId }: Props): 
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('¿Seguro que deseas eliminar esta circular?')) {
-      return
-    }
-
     try {
       await deleteCircular(id)
       setItems((prev) => prev.filter((item) => item.id !== id))

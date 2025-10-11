@@ -156,8 +156,6 @@ export function NewsImageManager({ newsId, onImagesChange, disabled = false, all
   }
 
   const handleDeleteImage = async (imageId: string) => {
-    if (!window.confirm('¿Seguro que deseas eliminar esta imagen?')) return
-
     try {
       setLoading(true)
       setError(null)

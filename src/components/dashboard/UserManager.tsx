@@ -127,10 +127,6 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-      return
-    }
-
     try {
       await deleteUser(id)
       setUsers(prev => prev.filter(user => user.id !== id))

@@ -142,10 +142,6 @@ export function GalleryManager({ courses, loadingCourses, profileId }: Props): J
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('¿Seguro que deseas eliminar esta imagen?')) {
-      return
-    }
-
     try {
       await deleteGalleryItem(id)
       setItems((prev) => prev.filter((item) => item.id !== id))

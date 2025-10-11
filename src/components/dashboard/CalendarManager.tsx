@@ -137,18 +137,16 @@ export function CalendarManager({ profileId }: CalendarManagerProps): JSX.Elemen
   const handleDelete = async () => {
     if (!currentEvent.id) return
 
-    if (window.confirm(`¿Estás seguro de que quieres eliminar "${currentEvent.title}"?`)) {
-      try {
-        setSaving(true)
-        await deleteCalendarEvent(currentEvent.id)
-        await loadEvents()
-        closeModal()
-      } catch (err) {
-        console.error('Error deleting event:', err)
-        setError('Error al eliminar el evento')
-      } finally {
-        setSaving(false)
-      }
+    try {
+      setSaving(true)
+      await deleteCalendarEvent(currentEvent.id)
+      await loadEvents()
+      closeModal()
+    } catch (err) {
+      console.error('Error deleting event:', err)
+      setError('Error al eliminar el evento')
+    } finally {
+      setSaving(false)
     }
   }
 
