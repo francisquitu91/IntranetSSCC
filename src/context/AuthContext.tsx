@@ -169,7 +169,6 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
           full_name: record.full_name,
           role: (record.role ?? 'student') as Role,
           email: record.email,
-          course_ids: record.course_ids,
           rut: record.rut,
           curso: record.curso,
           cargo: record.cargo,

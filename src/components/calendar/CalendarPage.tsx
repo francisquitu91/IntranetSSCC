@@ -37,7 +37,7 @@ const eventTypeColors: Record<string, string> = {
 }
 
 // Función para determinar el ciclo según el nombre del curso
-const getCycleFromCourso = (curso: string | null | undefined): string | null => {
+const getCycleFromCurso = (curso: string | null | undefined): string | null => {
   if (!curso) return null
   
   const upperCurso = curso.toUpperCase().trim()
@@ -411,27 +411,8 @@ export function CalendarPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Cursos (opcional)
-              </label>
-              <select
-                multiple
-                onChange={handleCourseChange}
-                value={[] /* currentEventData.course_ids || [] */}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                size={5}
-              >
-                {courses.map(course => (
-                  <option key={course.id} value={course.id}>
-                    {course.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Mantén presionado Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples cursos. Si no seleccionas ninguno, el evento será visible para todos.
-              </p>
-            </div>
+            {/* Selector de cursos deshabilitado temporalmente */}
+            {/* TODO: Implementar selector de cursos con sistema de texto */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
