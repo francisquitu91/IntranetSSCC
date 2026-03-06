@@ -106,44 +106,44 @@ export function CircularsPage(): JSX.Element {
     <div className="min-h-screen" style={{ backgroundColor: '#F6FAFF' }}>
       {/* Header principal con estilo institucional */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
             {/* Título principal */}
             <div className="flex-1 text-center">
-              <h1 className="text-4xl font-bold" style={{ color: '#012A5A' }}>
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold" style={{ color: '#012A5A' }}>
                 Descarga de circulares
               </h1>
             </div>
 
             {/* Iconos */}
-            <div className="flex items-center gap-6">
-              <Search className="w-6 h-6" style={{ color: '#012A5A' }} />
-              <Instagram className="w-6 h-6" style={{ color: '#012A5A' }} />
+            <div className="flex items-center gap-3 sm:gap-6">
+              <Search className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: '#012A5A' }} />
+              <Instagram className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: '#012A5A' }} />
             </div>
           </div>
         </div>
       </div>
 
       {/* Barra de búsqueda */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         <div className="max-w-md mx-auto">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Buscar circulares..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
             />
           </div>
         </div>
       </div>
 
       {/* Título de la sección */}
-      <div className="max-w-7xl mx-auto px-6 mb-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 mb-6 sm:mb-8">
         <h2 
-          className="text-3xl font-bold text-center"
+          className="text-2xl sm:text-3xl font-bold text-center"
           style={{ color: '#012A5A' }}
         >
           Circular {CURRENT_YEAR}
@@ -152,10 +152,10 @@ export function CircularsPage(): JSX.Element {
 
       {/* Circulares subidas por administradores */}
       {(loadingDatabase || filteredDatabaseCirculars.length > 0) && (
-        <div className="max-w-4xl mx-auto px-6 mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <FileText className="w-5 h-5" style={{ color: '#012A5A' }} />
-            <h3 className="text-xl font-semibold" style={{ color: '#012A5A' }}>
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 mb-4 sm:mb-6">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#012A5A' }} />
+            <h3 className="text-lg sm:text-xl font-semibold" style={{ color: '#012A5A' }}>
               Circulares Institucionales
             </h3>
           </div>
@@ -166,7 +166,7 @@ export function CircularsPage(): JSX.Element {
               <p className="mt-2 text-gray-500">Cargando circulares...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {filteredDatabaseCirculars.map((circular) => (
                 <div
                   key={`db-${circular.id}`}

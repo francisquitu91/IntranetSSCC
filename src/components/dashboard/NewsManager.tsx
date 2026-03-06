@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { PlusCircle, Trash2, Pencil, XCircle } from 'lucide-react'
-import type { Course, NewsItem } from '../../types'
+import type { NewsItem } from '../../types'
 import { createNews, deleteNews, fetchNews, updateNews, type NewsPayload } from '../../lib/news'
 import { uploadPublicFile } from '../../lib/storage'
-import { CourseSelector } from './CourseSelector'
 import { NewsImageManager } from './NewsImageManager'
 import type { NewsImage } from '../../lib/newsImages'
 import { createNewsImage, fetchNewsImages, updateNewsImage } from '../../lib/newsImages'
 
 type Props = {
-  courses: Course[]
-  loadingCourses: boolean
   profileId?: string | null
 }
 
@@ -22,7 +19,7 @@ type FormState = {
   author: string
   date: string
   featured: boolean
-  courseIds: string[]
+  cursosObjetivo: string
 }
 
 const INITIAL_FORM: FormState = {
@@ -33,10 +30,10 @@ const INITIAL_FORM: FormState = {
   author: '',
   date: '',
   featured: false,
-  courseIds: [],
+  cursosObjetivo: '',
 }
 
-export function NewsManager({ courses, loadingCourses, profileId }: Props): JSX.Element {
+export function NewsManager({ profileId }: Props): JSX.Element {
   const [items, setItems] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -126,7 +123,7 @@ export function NewsManager({ courses, loadingCourses, profileId }: Props): JSX.
         date: formState.date ? new Date(formState.date).toISOString() : null,
         featured: formState.featured,
         image_url: null, // Se manejará a través del sistema de imágenes múltiples
-        course_ids: formState.courseIds.length > 0 ? formState.courseIds : null,
+        cursos_objetivo: formState.cursosObjetivo ? formState.cursosObjetivo.split(',').map(c => c.trim()).filter(Boolean) : null,
       }
 
       let savedNews: NewsItem
@@ -176,7 +173,7 @@ export function NewsManager({ courses, loadingCourses, profileId }: Props): JSX.
       author: item.author ?? '',
       date: item.date ? item.date.slice(0, 10) : '',
       featured: Boolean(item.featured),
-      courseIds: item.course_ids ?? [],
+      cursosObjetivo: item.cursos_objetivo ? item.cursos_objetivo.join(', ') : '',
     })
     setStatusMessage(null)
     setError(null)
@@ -324,18 +321,19 @@ export function NewsManager({ courses, loadingCourses, profileId }: Props): JSX.
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-600">Cursos destinatarios</p>
-          {loadingCourses ? (
-            <p className="text-sm text-slate-400">Cargando cursos…</p>
-          ) : (
-            <CourseSelector
-              courses={courses}
-              selected={new Set(formState.courseIds)}
-              onChange={(next) => setFormState((prev) => ({ ...prev, courseIds: next }))}
-            />
-          )}
-          <p className="text-xs text-slate-400">
-            Si no seleccionas ningún curso, la noticia será visible para toda la comunidad.
+          <label className="text-sm font-medium text-slate-600" htmlFor="news-cursos">
+            Cursos destinatarios (opcional)
+          </label>
+          <input
+            id="news-cursos"
+            type="text"
+            value={formState.cursosObjetivo}
+            onChange={(event) => setFormState((prev) => ({ ...prev, cursosObjetivo: event.target.value }))}
+            className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+            placeholder="Ej: 1-C, PK-B, III-A"
+          />
+          <p className="text-xs text-slate-500">
+            Separa múltiples cursos con comas. Deja vacío para que sea visible para toda la comunidad.
           </p>
         </div>
 
@@ -392,9 +390,9 @@ export function NewsManager({ courses, loadingCourses, profileId }: Props): JSX.
                     {item.date ? new Date(item.date).toLocaleDateString('es-CL') : 'Sin fecha definida'} •{' '}
                     {item.featured ? 'Destacada' : 'Normal'}
                   </p>
-                  {item.course_ids && item.course_ids.length > 0 ? (
+                  {item.cursos_objetivo && item.cursos_objetivo.length > 0 ? (
                     <p className="mt-1 text-xs text-slate-400">
-                      Destinada a {item.course_ids.length} curso(s)
+                      Destinada a: {item.cursos_objetivo.join(', ')}
                     </p>
                   ) : null}
                 </div>

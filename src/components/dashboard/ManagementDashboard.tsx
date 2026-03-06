@@ -1,19 +1,26 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import type { Course } from '../../types'
-import { fetchCourses } from '../../lib/courses'
 import { NewsManager } from './NewsManager'
-import { CalendarManager } from './CalendarManager'
 import { CircularManager } from './CircularManager'
-// import { GalleryManager } from './GalleryManager' // Temporalmente oculto
+import { GalleryManager } from './GalleryManager'
+import { ModeloManager } from './ModeloManager'
 import { UserManager } from './UserManager'
+import { SystemSettingsManager } from './SystemSettingsManager'
+import { NominaUploader } from './NominaUploader'
 
 const TABS = [
   { id: 'news', label: 'Noticias' },
-  { id: 'calendar', label: 'Calendario' },
   { id: 'circulars', label: 'Circulares' },
-  // { id: 'gallery', label: 'Galería' }, // Temporalmente oculto
+  { id: 'gallery', label: 'Galería' },
+  { id: 'modelo', label: 'Modelo Islandés' },
   { id: 'users', label: 'Usuarios' },
+  { id: 'nominas', label: 'Nóminas' },
+  { id: 'settings', label: 'Configuración' },
+] as const
+
+const TEACHER_TABS = [
+  { id: 'news', label: 'Noticias' },
+  { id: 'gallery', label: 'Galería' },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
@@ -21,40 +28,6 @@ type TabId = (typeof TABS)[number]['id']
 export function ManagementDashboard(): JSX.Element {
   const { profile, signOut, role } = useAuth()
   const [activeTab, setActiveTab] = useState<TabId>('news')
-  const [courses, setCourses] = useState<Course[]>([])
-  const [isLoadingCourses, setIsLoadingCourses] = useState(true)
-  const [coursesError, setCoursesError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadCourses() {
-      try {
-        const data = await fetchCourses()
-        if (isMounted) {
-          setCourses(data)
-        }
-      } catch (err) {
-        if (isMounted) {
-          setCoursesError(
-            err instanceof Error
-              ? err.message
-              : 'No pudimos cargar el listado de cursos. Intenta nuevamente más tarde.',
-          )
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoadingCourses(false)
-        }
-      }
-    }
-
-    void loadCourses()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   const welcomeMessage = useMemo(() => {
     const name = profile?.full_name ?? profile?.email ?? 'Usuario'
@@ -62,10 +35,14 @@ export function ManagementDashboard(): JSX.Element {
       return `Bienvenida/o ${name}. Tienes permisos completos de administración.`
     }
     if (role === 'teacher') {
-      return `Bienvenida/o ${name}. Puedes gestionar noticias, circulares y galerías de tu curso.`
+      return `Bienvenida/o ${name}. Puedes gestionar noticias y galerías de fotos/videos.`
     }
     return `Hola ${name}. Puedes informarte con las últimas novedades.`
   }, [profile, role])
+
+  const availableTabs = useMemo(() => {
+    return role === 'teacher' ? TEACHER_TABS : TABS
+  }, [role])
 
   return (
     <section className="space-y-6">
@@ -89,14 +66,16 @@ export function ManagementDashboard(): JSX.Element {
       {(role === 'admin' || role === 'teacher') && (
         <div className="rounded-3xl bg-white p-6 shadow-card">
           <nav className="mb-6 flex flex-wrap gap-2">
-            {TABS.map((tab) => (
+            {availableTabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => setActiveTab(tab.id as TabId)}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   activeTab === tab.id
-                    ? 'bg-sky-900 text-white'
+                    ? role === 'teacher' 
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-sky-900 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                 }`}
               >
@@ -105,44 +84,34 @@ export function ManagementDashboard(): JSX.Element {
             ))}
           </nav>
 
-          {coursesError && (
-            <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm text-amber-700">{coursesError}</p>
-          )}
-
           {activeTab === 'news' && (
             <NewsManager
-              courses={courses}
-              loadingCourses={isLoadingCourses}
               profileId={profile?.id}
             />
           )}
-          {activeTab === 'calendar' && (
-            <CalendarManager
-              profileId={profile?.id}
-            />
-          )}
-          {activeTab === 'circulars' && (
+          {activeTab === 'circulars' && role === 'admin' && (
             <CircularManager
-              courses={courses}
-              loadingCourses={isLoadingCourses}
               profileId={profile?.id}
             />
           )}
-          {/* Temporalmente ocultos
           {activeTab === 'gallery' && (
             <GalleryManager
-              courses={courses}
-              loadingCourses={isLoadingCourses}
               profileId={profile?.id}
             />
           )}
-          */}
-          {activeTab === 'users' && (
+          {activeTab === 'modelo' && role === 'admin' && (
+            <ModeloManager profileId={profile?.id} />
+          )}
+          {activeTab === 'users' && role === 'admin' && (
             <UserManager
               profileId={profile?.id}
-              courses={courses}
-              loadingCourses={isLoadingCourses}
             />
+          )}
+          {activeTab === 'nominas' && role === 'admin' && (
+            <NominaUploader />
+          )}
+          {activeTab === 'settings' && role === 'admin' && (
+            <SystemSettingsManager profileId={profile?.id} />
           )}
         </div>
       )}

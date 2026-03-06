@@ -21,7 +21,9 @@ export type UserPayload = {
   password: string
   full_name: string
   role: Role
-  course_ids?: string[]
+  rut?: string
+  curso?: string
+  cargo?: string
 }
 
 export async function createUser(payload: UserPayload): Promise<Profile> {
@@ -32,7 +34,9 @@ export async function createUser(payload: UserPayload): Promise<Profile> {
     p_password: payload.password,
     p_full_name: payload.full_name,
     p_role: payload.role,
-    p_course_ids: payload.course_ids || [],
+    p_rut: payload.rut || null,
+    p_curso: payload.curso || null,
+    p_cargo: payload.cargo || null,
   })
 
   if (error) {
@@ -51,7 +55,9 @@ export async function updateUser(id: string, payload: Partial<UserPayload>): Pro
     p_password: payload.password,
     p_full_name: payload.full_name,
     p_role: payload.role,
-    p_course_ids: payload.course_ids || [],
+    p_rut: payload.rut || null,
+    p_curso: payload.curso || null,
+    p_cargo: payload.cargo || null,
   })
 
   if (error) {

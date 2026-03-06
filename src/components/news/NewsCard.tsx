@@ -22,10 +22,10 @@ export function NewsCard({ item, onClick }: NewsCardProps): JSX.Element {
 
   return (
     <article 
-      className="group flex flex-col rounded-3xl bg-white shadow-card transition hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+      className="group flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-card transition hover:-translate-y-1 hover:shadow-lg cursor-pointer"
       onClick={onClick}
     >
-      <div className="relative h-48 overflow-hidden rounded-t-3xl">
+      <div className="relative h-40 sm:h-48 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
         {imageUrl ? (
           <img 
             src={imageUrl} 
@@ -61,13 +61,13 @@ export function NewsCard({ item, onClick }: NewsCardProps): JSX.Element {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 px-5 pb-6 pt-5">
-        <h3 className="line-clamp-2 text-lg font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
+      <div className="flex flex-1 flex-col gap-2 sm:gap-3 px-4 sm:px-5 pb-4 sm:pb-6 pt-3 sm:pt-5">
+        <h3 className="line-clamp-2 text-base sm:text-lg font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
           {item.title}
         </h3>
         
         {item.excerpt && (
-          <p className="line-clamp-3 text-sm text-slate-600 leading-relaxed">
+          <p className="line-clamp-2 sm:line-clamp-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
             {item.excerpt}
           </p>
         )}
@@ -78,7 +78,7 @@ export function NewsCard({ item, onClick }: NewsCardProps): JSX.Element {
           </div>
         )}
 
-        <div className="mt-auto flex items-center justify-between text-sm font-medium text-blue-600 group-hover:text-blue-700 transition-colors">
+        <div className="mt-auto flex items-center justify-between text-xs sm:text-sm font-medium text-blue-600 group-hover:text-blue-700 transition-colors">
           <span>Leer noticia completa</span>
           <span className="transition-transform group-hover:translate-x-1">→</span>
         </div>

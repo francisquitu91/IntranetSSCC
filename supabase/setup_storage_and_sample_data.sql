@@ -35,9 +35,9 @@ create policy "Allow file uploads to gallery" on storage.objects
   for insert
   with check (bucket_id = 'gallery');
 
--- 4. Allow admins/teachers to update/delete files
-create policy "Allow file updates in news-images" on storage.objects
-  for update
+create policy "Allow file uploads to system-files" on storage.objects
+  for insert
+  with check (bucket_id = 'system-fil
   using (bucket_id = 'news-images');
 
 create policy "Allow file updates in circulars" on storage.objects
@@ -47,6 +47,10 @@ create policy "Allow file updates in circulars" on storage.objects
 create policy "Allow file updates in gallery" on storage.objects
   for update
   using (bucket_id = 'gallery');
+
+create policy "Allow file updates in system-files" on storage.objects
+  for update
+  using (bucket_id = 'system-files');
 
 create policy "Allow file deletion in news-images" on storage.objects
   for delete
@@ -58,11 +62,7 @@ create policy "Allow file deletion in circulars" on storage.objects
 
 create policy "Allow file deletion in gallery" on storage.objects
   for delete
-  using (bucket_id = 'gallery');
-
--- 5. Insert some sample news for testing
-insert into public.news (id, title, excerpt, content, author, image_url, date, featured, course_ids, created_by)
-values
+  using (bucket_id = 'gallery
   (gen_random_uuid(), 'Bienvenidos al nuevo año escolar 2025', 'Iniciamos un nuevo período lleno de desafíos y oportunidades para toda la comunidad educativa.', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'Dirección Académica', null, now(), true, '{}', '00000000-0000-0000-0000-000000000001'),
   (gen_random_uuid(), 'Actividades deportivas de octubre', 'Conoce las competencias y torneos programados para este mes.', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'Coordinación Deportiva', null, now() - interval '2 days', false, '{}', '00000000-0000-0000-0000-000000000001'),
   (gen_random_uuid(), 'Reunión de apoderados 4° Medio', 'Importante información sobre el proceso de graduación y PSU.', 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.', 'Coordinación Académica', null, now() - interval '1 day', false, (select array_agg(id) from public.courses where name like '%4° Medio%'), '00000000-0000-0000-0000-000000000001')

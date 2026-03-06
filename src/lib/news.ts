@@ -70,7 +70,7 @@ export type NewsPayload = {
   date?: string | null
   author?: string | null
   featured?: boolean | null
-  course_ids?: string[] | null
+  cursos_objetivo?: string[] | null
   created_by?: string | null
 }
 

@@ -65,7 +65,11 @@ type FetchState = {
 }
 
 type Props = {
-  courseFilter?: string[] | null
+  /**
+   * Curso del estudiante (texto simple, ej: "1-C")
+   * Si es null/undefined, muestra todas las noticias
+   */
+  courseFilter?: string | null
   canManage?: boolean
 }
 
@@ -116,7 +120,7 @@ export function NewsFeed({ courseFilter, canManage = false }: Props): JSX.Elemen
     return () => {
       isMounted = false
     }
-  }, [courseFilter?.join(',')])
+  }, [courseFilter])
 
   const visibleNews = useMemo(() => {
     const start = 0
@@ -149,22 +153,22 @@ export function NewsFeed({ courseFilter, canManage = false }: Props): JSX.Elemen
   }
 
   return (
-    <section className="space-y-8">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold text-sky-900">Últimas noticias</h1>
-        <p className="mt-1 text-sm text-slate-500">
+    <section className="space-y-4 sm:space-y-8">
+      <header className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-sky-900">Últimas noticias</h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-500">
           Mantente al día con los anuncios e hitos más importantes de nuestra comunidad educativa.
         </p>
       </header>
 
       {isLoading ? (
-        <div className="h-56 animate-pulse rounded-3xl bg-white" />
+        <div className="h-56 animate-pulse rounded-2xl sm:rounded-3xl bg-white" />
       ) : (
         featured && <HeroNews item={featured} onClick={() => handleNewsClick(featured)} />
       )}
 
       <div>
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {visibleNews.map((item) => (
             <NewsCard key={item.id} item={item} onClick={() => handleNewsClick(item)} />
           ))}
@@ -177,12 +181,12 @@ export function NewsFeed({ courseFilter, canManage = false }: Props): JSX.Elemen
         )}
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-2">
         <button
           type="button"
           onClick={handleLoadMore}
           disabled={!hasMore}
-          className="rounded-full bg-sky-900 px-6 py-2 text-sm font-semibold text-white transition enabled:hover:bg-sky-950 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="rounded-full bg-sky-900 px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white transition enabled:hover:bg-sky-950 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
           {hasMore ? 'Cargar más' : 'No hay más noticias'}
         </button>
@@ -197,16 +201,20 @@ export function NewsFeed({ courseFilter, canManage = false }: Props): JSX.Elemen
   )
 }
 
-function filterByCourse(news: NewsItem[], courseFilter?: string[] | null): NewsItem[] {
-  if (!courseFilter || courseFilter.length === 0) {
+function filterByCourse(news: NewsItem[], courseFilter?: string | null): NewsItem[] {
+  // No hay filtro = mostrar todas las noticias
+  if (!courseFilter) {
     return news
   }
 
-  const courseSet = new Set(courseFilter)
+  // Filtrar noticias:
+  // - Si la noticia NO tiene cursos_objetivo, se muestra a todos
+  // - Si la noticia TIENE cursos_objetivo, verificar si el curso del estudiante está en la lista
   return news.filter((item) => {
-    if (!item.course_ids || item.course_ids.length === 0) {
-      return true
+    if (!item.cursos_objetivo || item.cursos_objetivo.length === 0) {
+      return true // Sin cursos asignados = visible para todos
     }
-    return item.course_ids.some((courseId) => courseSet.has(courseId))
+    // Verificar si el curso del estudiante está en cursos_objetivo
+    return item.cursos_objetivo.includes(courseFilter)
   })
 }

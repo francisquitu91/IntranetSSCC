@@ -113,6 +113,9 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
           ...record,
           id: String(record.id),
           role: normalizedRole,
+          rut: record.rut,
+          curso: record.curso,
+          cargo: record.cargo,
         })
       } else {
         setProfile(null)
@@ -167,6 +170,9 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
           role: (record.role ?? 'student') as Role,
           email: record.email,
           course_ids: record.course_ids,
+          rut: record.rut,
+          curso: record.curso,
+          cargo: record.cargo,
         })
         setLoading(false)
       },

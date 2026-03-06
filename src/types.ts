@@ -1,11 +1,5 @@
 export type Role = 'admin' | 'teacher' | 'student'
 
-export type Course = {
-  id: string
-  name: string
-  grade_level?: string | null
-}
-
 export type NewsItem = {
   id: string
   title: string
@@ -15,7 +9,7 @@ export type NewsItem = {
   excerpt?: string | null
   author?: string | null
   content?: string | null
-  course_ids?: string[] | null
+  cursos_objetivo?: string[] | null
   created_at?: string
   updated_at?: string
   created_by?: string | null
@@ -39,7 +33,7 @@ export type Circular = {
   description?: string | null
   file_url: string
   file_name?: string | null
-  course_ids?: string[] | null
+  cursos_objetivo?: string[] | null
   published_at?: string | null
   created_by?: string | null
 }
@@ -49,7 +43,7 @@ export type GalleryItem = {
   title: string
   description?: string | null
   image_url: string
-  course_ids?: string[] | null
+  cursos_objetivo?: string[] | null
   published_at?: string | null
   created_by?: string | null
 }
@@ -59,8 +53,10 @@ export type Profile = {
   full_name?: string | null
   role: Role
   email?: string
-  course_ids?: string[] | null
   created_at?: string
+  rut?: string | null
+  curso?: string | null
+  cargo?: string | null
 }
 
 export type CalendarEvent = {

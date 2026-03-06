@@ -6,7 +6,7 @@ export type CircularPayload = {
   description?: string | null
   file_url: string
   file_name?: string | null
-  course_ids?: string[] | null
+  cursos_objetivo?: string[] | null
   published_at?: string | null
   created_by?: string | null
 }

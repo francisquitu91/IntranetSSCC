@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { CloudUpload, Download, Trash2, Pencil, XCircle } from 'lucide-react'
-import type { Circular, Course } from '../../types'
+import type { Circular } from '../../types'
 import {
   createCircular,
   deleteCircular,
@@ -9,26 +9,23 @@ import {
   type CircularPayload,
 } from '../../lib/circulars'
 import { uploadPublicFile } from '../../lib/storage'
-import { CourseSelector } from './CourseSelector'
 
 const INITIAL_FORM = {
   id: null as string | null,
   title: '',
   description: '',
   published_at: '',
-  courseIds: [] as string[],
+  cursosObjetivo: '',
   file: null as File | null,
   fileUrl: '',
   fileName: '',
 }
 
 type Props = {
-  courses: Course[]
-  loadingCourses: boolean
   profileId?: string | null
 }
 
-export function CircularManager({ courses, loadingCourses, profileId }: Props): JSX.Element {
+export function CircularManager({ profileId }: Props): JSX.Element {
   const [items, setItems] = useState<Circular[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -111,7 +108,7 @@ export function CircularManager({ courses, loadingCourses, profileId }: Props): 
         description: form.description || null,
         file_url: fileUrl,
         file_name: fileName || null,
-        course_ids: form.courseIds.length > 0 ? form.courseIds : null,
+        cursos_objetivo: form.cursosObjetivo ? form.cursosObjetivo.split(',').map(c => c.trim()).filter(Boolean) : null,
         published_at: form.published_at ? new Date(form.published_at).toISOString() : null,
       }
 
@@ -140,7 +137,7 @@ export function CircularManager({ courses, loadingCourses, profileId }: Props): 
       title: item.title,
       description: item.description ?? '',
       published_at: item.published_at ? item.published_at.slice(0, 10) : '',
-      courseIds: item.course_ids ?? [],
+      cursosObjetivo: item.cursos_objetivo ? item.cursos_objetivo.join(', ') : '',
       file: null,
       fileUrl: item.file_url,
       fileName: item.file_name ?? '',
@@ -244,18 +241,19 @@ export function CircularManager({ courses, loadingCourses, profileId }: Props): 
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-600">Cursos destinatarios</p>
-          {loadingCourses ? (
-            <p className="text-sm text-slate-400">Cargando cursos…</p>
-          ) : (
-            <CourseSelector
-              courses={courses}
-              selected={new Set(form.courseIds)}
-              onChange={(next) => setForm((prev) => ({ ...prev, courseIds: next }))}
-            />
-          )}
-          <p className="text-xs text-slate-400">
-            Si no seleccionas ningún curso, la circular estará visible para todos los usuarios.
+          <label className="text-sm font-medium text-slate-600" htmlFor="circular-cursos">
+            Cursos destinatarios (opcional)
+          </label>
+          <input
+            id="circular-cursos"
+            type="text"
+            value={form.cursosObjetivo}
+            onChange={(e) => setForm((prev) => ({ ...prev, cursosObjetivo: e.target.value }))}
+            className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+            placeholder="Ej: 1-C, PK-B, III-A"
+          />
+          <p className="text-xs text-slate-500">
+            Separa múltiples cursos con comas. Deja vacío si es para todos los usuarios.
           </p>
         </div>
 
@@ -294,9 +292,9 @@ export function CircularManager({ courses, loadingCourses, profileId }: Props): 
                       ? new Date(item.published_at).toLocaleDateString('es-CL')
                       : 'Sin fecha definida'}
                   </p>
-                  {item.course_ids && item.course_ids.length > 0 ? (
+                  {item.cursos_objetivo && item.cursos_objetivo.length > 0 ? (
                     <p className="mt-1 text-xs text-slate-400">
-                      Dirigida a {item.course_ids.length} curso(s)
+                      Dirigida a: {item.cursos_objetivo.join(', ')}
                     </p>
                   ) : null}
                 </div>

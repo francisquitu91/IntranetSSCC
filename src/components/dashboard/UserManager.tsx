@@ -1,12 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { PlusCircle, Trash2, Pencil, XCircle, Users } from 'lucide-react'
-import type { Profile, Role, Course } from '../../types'
+import type { Profile, Role } from '../../types'
 import { fetchUsers, createUser, updateUser, deleteUser, type UserPayload } from '../../lib/users'
 
 type Props = {
   profileId?: string | null
-  courses: Course[]
-  loadingCourses: boolean
 }
 
 type FormState = {
@@ -15,7 +13,9 @@ type FormState = {
   password: string
   full_name: string
   role: Role
-  course_ids: string[]
+  rut: string
+  curso: string
+  cargo: string
 }
 
 const INITIAL_FORM: FormState = {
@@ -24,7 +24,9 @@ const INITIAL_FORM: FormState = {
   password: '',
   full_name: '',
   role: 'student',
-  course_ids: [],
+  rut: '',
+  curso: '',
+  cargo: '',
 }
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -33,7 +35,7 @@ const ROLE_LABELS: Record<Role, string> = {
   student: 'Alumno',
 }
 
-export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.Element {
+export function UserManager({ profileId }: Props): JSX.Element {
   const [users, setUsers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -88,7 +90,9 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
         password: formState.password,
         full_name: formState.full_name,
         role: formState.role,
-        course_ids: formState.course_ids,
+        rut: formState.rut || undefined,
+        curso: formState.curso || undefined,
+        cargo: formState.cargo || undefined,
       }
 
       if (formState.id) {
@@ -117,10 +121,12 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
     setFormState({
       id: user.id,
       email: user.email || '',
-      password: '********', // No mostrar la contraseña real
+      password: '********',
       full_name: user.full_name || '',
       role: user.role,
-      course_ids: user.course_ids || [],
+      rut: user.rut || '',
+      curso: user.curso || '',
+      cargo: user.cargo || '',
     })
     setStatusMessage(null)
     setError(null)
@@ -185,6 +191,34 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre Completo *
+              </label>
+              <input
+                id="full_name"
+                type="text"
+                value={formState.full_name}
+                onChange={(e) => setFormState(prev => ({ ...prev, full_name: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="rut" className="block text-sm font-medium text-gray-700 mb-1">
+                RUT
+              </label>
+              <input
+                id="rut"
+                type="text"
+                value={formState.rut}
+                onChange={(e) => setFormState(prev => ({ ...prev, rut: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="12345678-9"
+              />
+            </div>
+
+            <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Correo Electrónico *
               </label>
@@ -213,20 +247,6 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
             </div>
 
             <div>
-              <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre Completo *
-              </label>
-              <input
-                id="full_name"
-                type="text"
-                value={formState.full_name}
-                onChange={(e) => setFormState(prev => ({ ...prev, full_name: e.target.value }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            <div>
               <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
                 Cargo *
               </label>
@@ -242,40 +262,40 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
                 <option value="admin">Administrador</option>
               </select>
             </div>
-          </div>
 
-          {/* Selector de cursos - solo para estudiantes */}
-          {formState.role === 'student' && (
             <div>
-              <label htmlFor="courses" className="block text-sm font-medium text-gray-700 mb-1">
-                Cursos Asignados *
+              <label htmlFor="curso" className="block text-sm font-medium text-gray-700 mb-1">
+                Curso/Nivel {formState.role === 'student' && '*'}
               </label>
-              {loadingCourses ? (
-                <div className="text-sm text-gray-500">Cargando cursos...</div>
-              ) : (
-                <select
-                  id="courses"
-                  multiple
-                  value={formState.course_ids}
-                  onChange={(e) => {
-                    const selectedCourses = Array.from(e.target.selectedOptions, option => option.value)
-                    setFormState(prev => ({ ...prev, course_ids: selectedCourses }))
-                  }}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
-                  required={formState.role === 'student'}
-                >
-                  {courses.map((course) => (
-                    <option key={course.id} value={course.id}>
-                      {course.name} {course.grade_level && `(${course.grade_level})`}
-                    </option>
-                  ))}
-                </select>
-              )}
+              <input
+                id="curso"
+                type="text"
+                value={formState.curso}
+                onChange={(e) => setFormState(prev => ({ ...prev, curso: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej: 1-C, PK-B, II-D"
+                required={formState.role === 'student'}
+              />
               <p className="text-xs text-gray-500 mt-1">
-                Mantén presionado Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples cursos.
+                Escribe el curso del estudiante. Ejemplo: "1-C", "PK-B", "III-A"
               </p>
             </div>
-          )}
+
+            <div>
+              <label htmlFor="cargo" className="block text-sm font-medium text-gray-700 mb-1">
+                Cargo {formState.role === 'teacher' && '*'}
+              </label>
+              <input
+                id="cargo"
+                type="text"
+                value={formState.cargo}
+                onChange={(e) => setFormState(prev => ({ ...prev, cargo: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej: Profesor de Matemáticas"
+                required={formState.role === 'teacher'}
+              />
+            </div>
+          </div>
 
           <div className="flex gap-3 pt-4">
             <button
@@ -315,13 +335,16 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
                   Usuario
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  RUT
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Correo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Cargo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cursos
+                  Curso/Nivel
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
@@ -333,6 +356,9 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-600">{user.rut || '-'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{user.email}</div>
@@ -348,26 +374,8 @@ export function UserManager({ profileId, courses, loadingCourses }: Props): JSX.
                       {ROLE_LABELS[user.role]}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    {user.role === 'student' && user.course_ids && user.course_ids.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {user.course_ids.map((courseId) => {
-                          const course = courses.find(c => c.id === courseId)
-                          return course ? (
-                            <span
-                              key={courseId}
-                              className="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full"
-                            >
-                              {course.name}
-                            </span>
-                          ) : null
-                        })}
-                      </div>
-                    ) : user.role === 'student' ? (
-                      <span className="text-xs text-amber-600">Sin cursos</span>
-                    ) : (
-                      <span className="text-xs text-gray-400">N/A</span>
-                    )}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-600">{user.curso || user.cargo || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">

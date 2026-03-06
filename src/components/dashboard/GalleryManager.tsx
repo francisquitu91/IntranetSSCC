@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { ImagePlus, Trash2, Pencil, XCircle } from 'lucide-react'
-import type { Course, GalleryItem } from '../../types'
+import type { GalleryItem } from '../../types'
 import {
   createGalleryItem,
   deleteGalleryItem,
@@ -9,7 +9,6 @@ import {
   type GalleryPayload,
 } from '../../lib/gallery'
 import { uploadPublicFile } from '../../lib/storage'
-import { CourseSelector } from './CourseSelector'
 
 const INITIAL_FORM = {
   id: null as string | null,
@@ -18,16 +17,14 @@ const INITIAL_FORM = {
   published_at: '',
   imageFile: null as File | null,
   imageUrl: '',
-  courseIds: [] as string[],
+  cursosObjetivo: '',
 }
 
 type Props = {
-  courses: Course[]
-  loadingCourses: boolean
   profileId?: string | null
 }
 
-export function GalleryManager({ courses, loadingCourses, profileId }: Props): JSX.Element {
+export function GalleryManager({ profileId }: Props): JSX.Element {
   const [items, setItems] = useState<GalleryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -104,7 +101,7 @@ export function GalleryManager({ courses, loadingCourses, profileId }: Props): J
         title: form.title,
         description: form.description || null,
         image_url: imageUrl,
-        course_ids: form.courseIds.length > 0 ? form.courseIds : null,
+        cursos_objetivo: form.cursosObjetivo ? form.cursosObjetivo.split(',').map(c => c.trim()).filter(Boolean) : null,
         published_at: form.published_at ? new Date(form.published_at).toISOString() : null,
       }
 
@@ -135,7 +132,7 @@ export function GalleryManager({ courses, loadingCourses, profileId }: Props): J
       published_at: item.published_at ? item.published_at.slice(0, 10) : '',
       imageFile: null,
       imageUrl: item.image_url,
-      courseIds: item.course_ids ?? [],
+      cursosObjetivo: item.cursos_objetivo ? item.cursos_objetivo.join(', ') : '',
     })
     setStatusMessage(null)
     setError(null)
@@ -230,6 +227,9 @@ export function GalleryManager({ courses, loadingCourses, profileId }: Props): J
               className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
               placeholder="https://..."
             />
+            <p className="text-xs text-slate-500">
+              💡 Soporta: YouTube (youtube.com/watch?v=... o youtu.be/...), Vimeo, o imágenes
+            </p>
           </div>
         </div>
 
@@ -247,18 +247,19 @@ export function GalleryManager({ courses, loadingCourses, profileId }: Props): J
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-600">Cursos destinatarios</p>
-          {loadingCourses ? (
-            <p className="text-sm text-slate-400">Cargando cursos…</p>
-          ) : (
-            <CourseSelector
-              courses={courses}
-              selected={new Set(form.courseIds)}
-              onChange={(next) => setForm((prev) => ({ ...prev, courseIds: next }))}
-            />
-          )}
-          <p className="text-xs text-slate-400">
-            Deja en blanco para mostrarlo a todos los cursos.
+          <label className="text-sm font-medium text-slate-600" htmlFor="gallery-cursos">
+            Cursos destinatarios (opcional)
+          </label>
+          <input
+            id="gallery-cursos"
+            type="text"
+            value={form.cursosObjetivo}
+            onChange={(e) => setForm((prev) => ({ ...prev, cursosObjetivo: e.target.value }))}
+            className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+            placeholder="Ej: 1-C, PK-B, III-A"
+          />
+          <p className="text-xs text-slate-500">
+            Separa múltiples cursos con comas. Deja vacío para mostrarlo a todos los cursos.
           </p>
         </div>
 
