@@ -14,6 +14,7 @@ import { CalendarPage } from './components/calendar/CalendarPage'
 import { GalleryPage } from './components/gallery/GalleryPage'
 import { MenuPage } from './components/menu/MenuPage'
 import { ModeloPage } from './components/modelo/ModeloPage'
+import { DepartmentsPage } from './components/departments/DepartmentsPage'
 import { useDocumentViewer } from './context/DocumentViewerContext'
 
 type PageType = 'news' | 'circulars' | 'gallery' | 'calendar' | 'departments' | 'menu' | 'bulletin' | 'modelo'
@@ -39,6 +40,8 @@ export default function App(): JSX.Element {
         )
       case 'menu':
         return <MenuPage />
+      case 'departments':
+        return <DepartmentsPage />
       case 'modelo':
         return <ModeloPage />
       case 'news':

@@ -7,11 +7,13 @@ import { ModeloManager } from './ModeloManager'
 import { UserManager } from './UserManager'
 import { SystemSettingsManager } from './SystemSettingsManager'
 import { NominaUploader } from './NominaUploader'
+import { DepartmentsManager } from './DepartmentsManager'
 
 const TABS = [
   { id: 'news', label: 'Noticias' },
   { id: 'circulars', label: 'Circulares' },
   { id: 'gallery', label: 'Galería' },
+  { id: 'departments', label: 'Departamentos' },
   { id: 'modelo', label: 'Modelo Islandés' },
   { id: 'users', label: 'Usuarios' },
   { id: 'nominas', label: 'Nóminas' },
@@ -98,6 +100,9 @@ export function ManagementDashboard(): JSX.Element {
             <GalleryManager
               profileId={profile?.id}
             />
+          )}
+          {activeTab === 'departments' && role === 'admin' && (
+            <DepartmentsManager profileId={profile?.id} />
           )}
           {activeTab === 'modelo' && role === 'admin' && (
             <ModeloManager profileId={profile?.id} />
